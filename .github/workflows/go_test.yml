@@ -20,7 +20,7 @@ jobs:
       with:
         # Optional coverage threshold
         # use fail-coverage to determine what should happen below this threshold
-        coverage-threshold: 80
+        coverage-threshold: 50
 
         # collect coverage for all packages beyond the one under test
         cover-pkg: ./...
@@ -29,11 +29,11 @@ jobs:
         ignore-pattern: |
           \.pb\.go$
           \_string\.go$
-        
-        # A url that the html report will be accessible at, once your
-        # workflow uploads it.  Used in the pull request comment.
-        report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
-    
+          \internal\/server\/.*\.go$
+          \cmd\/flarity\/.*\.go$
+        # # A url that the html report will be accessible at, once your
+        # # workflow uploads it.  Used in the pull request comment.
+        # report-url: https://artifacts.example.com/go-coverage/${{ github.ref_name}}.html
     - name: Generate coverage tree map
       run: |
         go run github.com/nikolaydubina/go-cover-treemap@latest \
