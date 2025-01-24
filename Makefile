@@ -46,3 +46,8 @@ start:
 clean:
 	rm -rf assets/*
 	rm -rf out/
+
+test: # run tests and projects coverage
+test: 
+	go test -covermode count -coverprofile go.cov -coverpkg ./... ./... 
+	go tool cover -html go.cov -o go-coverage.html

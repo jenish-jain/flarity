@@ -24,6 +24,7 @@ type Meta struct {
 	ClientName  string `json:"client_name"`
 	Description string `json:"description"`
 	Status      string `json:"status"`
+	Category    string `json:"category"`
 }
 
 type Amount float64
