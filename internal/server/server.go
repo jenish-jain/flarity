@@ -45,8 +45,8 @@ func NewServer() *Server {
 	}
 }
 
-func (s *Server) Run() {
-	s.InitRoutes()
+func (s *Server) Run(h Handlers) {
+	s.InitRoutes(h)
 	port := s.config.ServerPort
 	if port == "" {
 		port = "8080"
