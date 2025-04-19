@@ -37,11 +37,11 @@ func (h *Handler) VerifyGoogleToken(ctx *gin.Context) {
 		return
 	}
 
-	// Handle user login or registration logic here
-	ctx.JSON(http.StatusOK, gin.H{"message": "Authentication successful", "user": userInfo})
+	// Respond with the user's name in the desired JSON structure
+	ctx.JSON(http.StatusOK, userInfo)
 }
 
-func (h *Handler) fetchGoogleUserInfo(accessToken string) (map[string]interface{}, error) {
+func (h *Handler) fetchGoogleUserInfo(accessToken string) (map[string]string, error) {
 	url := fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -66,5 +66,15 @@ func (h *Handler) fetchGoogleUserInfo(accessToken string) (map[string]interface{
 		return nil, err
 	}
 
-	return userInfo, nil
+	// Log the complete user info for debugging
+	logger.Debug("User info received from Google API: %+v", userInfo)
+
+	// Extract the user's name from the response
+	name, ok := userInfo["name"].(string)
+	if !ok {
+		return nil, fmt.Errorf("user's name not found in response")
+	}
+
+	// Return the user's name in the desired JSON structure
+	return map[string]string{"name": name}, nil
 }
