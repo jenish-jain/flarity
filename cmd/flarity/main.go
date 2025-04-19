@@ -26,7 +26,8 @@ func main() {
 
 	ingestorHandler := ingestor.NewHandler(transactionRepo)
 	loginHandler := login.NewHandler()
-	handlers := server.InitHandlers(ingestorHandler, loginHandler)
+	transactionHandler := transaction.NewHandler(configStore, transactionRepo)
+	handlers := server.InitHandlers(ingestorHandler, loginHandler, transactionHandler)
 	server := server.NewServer()
 	server.Run(handlers)
 

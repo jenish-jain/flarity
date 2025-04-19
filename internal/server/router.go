@@ -4,12 +4,14 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/jenish-jain/flarity/internal/ingestor"
 	"github.com/jenish-jain/flarity/internal/login"
+	"github.com/jenish-jain/flarity/internal/transaction"
 	"github.com/jenish-jain/logger"
 )
 
 type Handlers struct {
-	ingestorHandler *ingestor.Handler
-	loginHandler    *login.Handler
+	ingestorHandler    *ingestor.Handler
+	loginHandler       *login.Handler
+	transactionHandler *transaction.Handler
 }
 
 func (s *Server) InitRoutes(h Handlers) {
@@ -27,12 +29,14 @@ func (s *Server) InitRoutes(h Handlers) {
 	router.Use(logger.AttachRequestIdToRequests)
 
 	h.ingestorHandler.InitRoutes(router)
-	h.loginHandler.InitRoutes(router.Group(""))
+	h.loginHandler.InitRoutes(router)
+	h.transactionHandler.InitRoutes(router)
 }
 
-func InitHandlers(ingestorHandler *ingestor.Handler, loginHandler *login.Handler) Handlers {
+func InitHandlers(ingestorHandler *ingestor.Handler, loginHandler *login.Handler, transactionHandler *transaction.Handler) Handlers {
 	return Handlers{
-		ingestorHandler: ingestorHandler,
-		loginHandler:    loginHandler,
+		ingestorHandler:    ingestorHandler,
+		loginHandler:       loginHandler,
+		transactionHandler: transactionHandler,
 	}
 }
