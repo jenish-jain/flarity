@@ -3,15 +3,18 @@ package config
 import (
 	"fmt"
 
+	"github.com/jenish-jain/flarity/internal/mongo"
 	"github.com/spf13/viper"
 )
 
 var AppConfig Config
 
 type Config struct {
-	ServerPort string `mapstructure:"SERVER_PORT"`
-	LogLevel   string `mapstructure:"LOG_LEVEL"`
-	AssetsPath string `mapstructure:"ASSETS_PATH"`
+	AppName     string                 `mapstructure:"APP_NAME"`
+	ServerPort  string                 `mapstructure:"SERVER_PORT"`
+	LogLevel    string                 `mapstructure:"LOG_LEVEL"`
+	AssetsPath  string                 `mapstructure:"ASSETS_PATH"`
+	MongoConfig mongo.ConnectionConfig `mapstructure:"MONGO_CONFIG"`
 }
 
 func InitConfig(configName string) *Config {
