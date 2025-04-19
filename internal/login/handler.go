@@ -41,40 +41,34 @@ func (h *Handler) VerifyGoogleToken(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userInfo)
 }
 
-func (h *Handler) fetchGoogleUserInfo(accessToken string) (map[string]string, error) {
+func (h *Handler) fetchGoogleUserInfo(accessToken string) (UserInfo, error) {
 	url := fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return UserInfo{}, err
 	}
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return UserInfo{}, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to verify token")
+		return UserInfo{}, fmt.Errorf("failed to verify token")
 	}
 
-	var userInfo map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		return nil, err
+	var authResponse AuthResponse
+	if err := json.NewDecoder(resp.Body).Decode(&authResponse); err != nil {
+		return UserInfo{}, err
 	}
 
 	// Log the complete user info for debugging
-	logger.Debug("User info received from Google API: %+v", userInfo)
-
-	// Extract the user's name from the response
-	name, ok := userInfo["name"].(string)
-	if !ok {
-		return nil, fmt.Errorf("user's name not found in response")
-	}
+	logger.Debug("User info received from Google API: %+v", &authResponse)
 
 	// Return the user's name in the desired JSON structure
-	return map[string]string{"name": name}, nil
+	return UserInfo{Name: authResponse.Name}, nil
 }
