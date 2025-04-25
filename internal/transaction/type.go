@@ -27,4 +27,23 @@ type Meta struct {
 	Category    string `json:"category" bson:"category"`
 }
 
-type Amount float64
+type TransactionSummary struct {
+	Category    string          `json:"category" bson:"category"`
+	TotalAmount float64         `json:"total_amount" bson:"total_amount"`
+	Type        TransactionType `json:"type" bson:"type"`
+}
+type TransactionSummaryResponse struct {
+	Year          int                  `json:"year" bson:"year"`
+	Month         int                  `json:"month" bson:"month"`
+	TotalDebit    float64              `json:"total_debit" bson:"total_debit"`
+	TotalCredit   float64              `json:"total_credit" bson:"total_credit"`
+	CategorySplit []TransactionSummary `json:"category_split" bson:"category_split"`
+}
+
+func (tt *TransactionType) IsCredit() bool {
+	return *tt == Credit
+}
+
+func (tt *TransactionType) IsDebit() bool {
+	return *tt == Debit
+}
