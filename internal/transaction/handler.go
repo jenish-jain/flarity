@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jenish-jain/flarity/internal/config"
@@ -21,6 +22,22 @@ func (h *Handler) GetTransactions(ctx *gin.Context) {
 		return
 	}
 
+	// Extract and validate pagination parameters
+	pageParam := ctx.DefaultQuery("page", "1")    // Default to 1 if not provided
+	limitParam := ctx.DefaultQuery("limit", "10") // Default to 10 if not provided
+
+	page, err := strconv.Atoi(pageParam)
+	if err != nil || page < 1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' query parameter"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil || limit < 1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' query parameter"})
+		return
+	}
+
 	// Build the filter for MongoDB query
 	filter := bson.M{}
 	if year > 0 && month > 0 {
@@ -33,10 +50,6 @@ func (h *Handler) GetTransactions(ctx *gin.Context) {
 			},
 		}
 	}
-
-	// Pagination parameters
-	page := 1
-	limit := 10
 
 	// Fetch transactions from the repository
 	transactions, err := h.repository.GetByFilter(filter, page, limit)
