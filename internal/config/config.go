@@ -3,18 +3,22 @@ package config
 import (
 	"fmt"
 
-	"github.com/jenish-jain/flarity/internal/mongo"
 	"github.com/spf13/viper"
 )
 
 var AppConfig Config
 
 type Config struct {
-	AppName     string                 `mapstructure:"APP_NAME"`
-	ServerPort  string                 `mapstructure:"SERVER_PORT"`
-	LogLevel    string                 `mapstructure:"LOG_LEVEL"`
-	AssetsPath  string                 `mapstructure:"ASSETS_PATH"`
-	MongoConfig mongo.ConnectionConfig `mapstructure:"MONGO_CONFIG"`
+	AppName         string `mapstructure:"APP_NAME"`
+	ServerPort      string `mapstructure:"SERVER_PORT"`
+	LogLevel        string `mapstructure:"LOG_LEVEL"`
+	AssetsPath      string `mapstructure:"ASSETS_PATH"`
+	MongoUsername   string `mapstructure:"MONGO_USERNAME"`
+	MongoPass       string `mapstructure:"MONGO_PASSWORD"`
+	MongoReplicaSet string `mapstructure:"MONGO_REPLICA_SET"`
+	MongoHost       string `mapstructure:"MONGO_HOST"`
+	MongoDbName     string `mapstructure:"MONGO_DB_NAME"`
+	MongoAuthDb     string `mapstructure:"MONGO_AUTH_DB"`
 }
 
 func InitConfig(configName string) *Config {
@@ -49,6 +53,21 @@ func (c *Config) GetServerPort() string {
 
 func (c *Config) GetAssetsPath() string {
 	return c.AssetsPath
+}
+
+func (c *Config) GetMongoURI() string {
+	return fmt.Sprintf(
+		"mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority&appName=%s",
+		c.MongoUsername,
+		c.MongoPass,
+		c.MongoHost,
+		c.MongoDbName,
+		c.AppName,
+	)
+}
+
+func (c *Config) GetMongoDbName() string {
+	return c.MongoDbName
 }
 
 func GetConfig() *Config {

@@ -15,8 +15,9 @@ func NewHandler() *Handler {
 	return &Handler{}
 }
 
-func (h *Handler) InitRoutes(router *gin.RouterGroup) {
-	router.POST("/api/auth/google", h.VerifyGoogleToken)
+func (h *Handler) InitRoutes(router *gin.Engine) {
+	loginGroup := router.Group("")
+	loginGroup.POST("/api/auth/google", h.VerifyGoogleToken)
 }
 
 func (h *Handler) VerifyGoogleToken(ctx *gin.Context) {
