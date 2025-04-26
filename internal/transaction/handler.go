@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jenish-jain/flarity/internal/config"
@@ -15,31 +14,46 @@ type Handler struct {
 }
 
 func (h *Handler) GetTransactions(ctx *gin.Context) {
-	page := 1
-	limit := 10
-	transactions, err := h.repository.GetByFilter(bson.D{}, page, limit)
+	// Extract and validate year and month using the common validator
+	year, month, err := ValidateYearAndMonth(ctx)
 	if err != nil {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(200, transactions)
+
+	// Build the filter for MongoDB query
+	filter := bson.M{}
+	if year > 0 && month > 0 {
+		filter = bson.M{
+			"$expr": bson.M{
+				"$and": []bson.M{
+					{"$eq": []interface{}{bson.M{"$year": "$date"}, year}},
+					{"$eq": []interface{}{bson.M{"$month": "$date"}, month}},
+				},
+			},
+		}
+	}
+
+	// Pagination parameters
+	page := 1
+	limit := 10
+
+	// Fetch transactions from the repository
+	transactions, err := h.repository.GetByFilter(filter, page, limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return the transactions
+	ctx.JSON(http.StatusOK, transactions)
 }
 
 func (h *Handler) GetMonthlyTransactionSummary(ctx *gin.Context) {
-	// Extract year and month from query parameters
-	yearParam := ctx.Query("year")
-	monthParam := ctx.Query("month")
-
-	// Validate and parse year and month
-	year, err := strconv.Atoi(yearParam)
-	if err != nil || year <= 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or missing 'year' query parameter"})
-		return
-	}
-
-	month, err := strconv.Atoi(monthParam)
-	if err != nil || month < 1 || month > 12 {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or missing 'month' query parameter"})
+	// Validate year and month using the common validator
+	year, month, err := ValidateYearAndMonth(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

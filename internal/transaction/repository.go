@@ -12,7 +12,7 @@ import (
 
 type Repository interface {
 	Add(transaction *Transaction) error
-	GetByFilter(filter bson.D, page, pageSize int) ([]Transaction, error)
+	GetByFilter(filter bson.M, page, pageSize int) ([]Transaction, error)
 	GetAggregatedByFilter(filter bson.A) ([]bson.M, error)
 }
 
@@ -27,7 +27,7 @@ func (r *repository) Add(transaction *Transaction) error {
 }
 
 // update this for paginated query
-func (r *repository) GetByFilter(filter bson.D, page, pageSize int) ([]Transaction, error) {
+func (r *repository) GetByFilter(filter bson.M, page, pageSize int) ([]Transaction, error) {
 	// Implementation for getting all transactions with pagination
 	skip := (page - 1) * pageSize
 	cursor, err := r.transactionCollection.Find(context.TODO(), filter, options.Find().SetSkip(int64(skip)).SetLimit(int64(pageSize)))
